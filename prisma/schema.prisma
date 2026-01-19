@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+  STAFF
+  KURIR
+}
+
+enum OrderStatus {
+  MENUNGGU_KONFIRMASI
+  MENUNGGU_PICKUP
+  DALAM_PERJALANAN
+  DITERIMA_LAUNDRY
+  MENUNGGU_PEMBAYARAN
+  MENUNGGU_ANTRIAN
+  SEDANG_DICUCI
+  SEDANG_DISETIRIKA
+  SIAP_DIANTAR
+  SELESAI
+  DITOLAK
+}
+
+enum PaymentMethod {
+  CASH
+  QRIS
+}
+
+enum PaymentStatus {
+  MENUNGGU_UPLOAD
+  MENUNGGU_KONFIRMASI
+  DITERIMA
+  DITOLAK
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  phone     String?
+  createdAt DateTime @default(now())
+
+  addresses Address[]
+  orders    Order[]
+  staff     Staff?
+  courier   Courier?
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  label     String
+  address   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Branch {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  phone     String
+  createdAt DateTime @default(now())
+
+  services LaundryService[]
+  staffs   Staff[]
+  orders   Order[]
+  qris     Qris?
+}
+
+model Qris {
+  id        String   @id @default(uuid())
+  branchId  String   @unique
+  image     String   // path / url QRIS
+  createdAt DateTime @default(now())
+
+  branch Branch @relation(fields: [branchId], references: [id])
+}
+
+model Staff {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  branchId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  branch Branch @relation(fields: [branchId], references: [id])
+}
+
+model Courier {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id])
+  orders Order[]
+}
+
+model LaundryService {
+  id        String   @id @default(uuid())
+  name      String
+  price     Int
+  branchId  String
+  createdAt DateTime @default(now())
+
+  branch Branch @relation(fields: [branchId], references: [id])
+  orders Order[]
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  userId        String
+  branchId      String
+  serviceId     String
+  courierId     String?
+
+  status        OrderStatus
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus?
+
+  estimasiBerat Float
+  beratFinal    Float?
+  totalHarga    Int?
+  nomorAntrian  Int?
+
+  createdAt DateTime @default(now())
+
+  user     User           @relation(fields: [userId], references: [id])
+  branch   Branch         @relation(fields: [branchId], references: [id])
+  service  LaundryService @relation(fields: [serviceId], references: [id])
+  courier  Courier?       @relation(fields: [courierId], references: [id])
+  payment  Payment?
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  orderId   String        @unique
+  amount    Int
+  method    PaymentMethod
+  status    PaymentStatus
+  proof     String?
+  createdAt DateTime      @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+}
