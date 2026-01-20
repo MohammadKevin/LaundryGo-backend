@@ -10,4 +10,10 @@ router.post(
     controller.createOrder
 )
 
+router.get(
+    '/',
+    auth,
+    controller.getAllOrder
+)
+
 module.exports = router

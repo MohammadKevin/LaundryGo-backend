@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth.routes')
 const branchRoutes = require('./routes/branch.routes')
 const serviceRoutes = require('./routes/service.routes')
 const orderRoutes = require('./routes/order.routes')
+const paymentRoutes = require('./routes/payment.routes')
 
 
 const app = express()
@@ -15,6 +16,7 @@ app.use('/auth', authRoutes)
 app.use('/branch', branchRoutes)
 app.use('/services', serviceRoutes)
 app.use('/orders', orderRoutes)
+app.use('/payments', paymentRoutes)
 
 app.get('/', (req, res) => {
   res.json({ message: 'LaundryGo API running' })

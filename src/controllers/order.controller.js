@@ -15,3 +15,13 @@ exports.createOrder = async (req, res) => {
         res.status(400).json({ message: err.message })
     }
 }
+
+
+exports.getAllOrder = async (req, res) => {
+    try {
+        const orders = await orderService.getAllOrder(req.user.id)
+        res.json(orders)
+    } catch (err) {
+        res.status(400).json({ message: err.message })
+    }
+}

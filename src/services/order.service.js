@@ -47,3 +47,11 @@ exports.createOrder = async ({
 
     return order
 }
+
+
+exports.getAllOrder = async (userId) => {
+    return prisma.order.findMany({
+        where: { userId },
+        include: { branch: true, service: true }
+    })
+}
