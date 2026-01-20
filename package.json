@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon src/server.js",
+    "build": "prisma generate",
     "start": "npx prisma migrate deploy && node src/server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "postinstall": "prisma generate"
+  },
+  "engines": {
+    "node": "18.x"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
